@@ -135,7 +135,7 @@ function initGlobe() {
         el.style.width = '20px'
         return el
       })
-  }, 1000)
+  }, 100)
 
   const globeMaterial = Globe.globeMaterial()
 
@@ -155,6 +155,20 @@ function initGlobe() {
   globeMaterial.shininess = 0.7
 
   scene.add(Globe)
+
+  // const WireFrameGlobe = new ThreeGlobe({
+  //   waitForGlobeReady: true,
+  //   animateIn: true,
+  // })
+
+  // const wireFrameMaterial = WireFrameGlobe.globeMaterial()
+  // wireFrameMaterial.wireframe = true
+  // wireFrameMaterial.color = new Color(0x00DC82)
+
+  // wireFrameMaterial.transparent = true
+  // wireFrameMaterial.opacity = 0.3
+
+  // scene.add(WireFrameGlobe)
 
   // Update pov when camera moves
   Globe.setPointOfView(camera.position, Globe.position)
