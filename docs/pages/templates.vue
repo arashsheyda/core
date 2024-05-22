@@ -4,7 +4,9 @@ import { joinURL } from 'ufo'
 const { data: page } = await useAsyncData('templates', () => queryContent('/templates').findOne())
 
 const { url } = useSiteConfig()
-const { templates, fetchList } = useTemplate()
+// const { templates, fetchList } = useTemplate()
+
+const templates = ref([{"id":1,"slug":"starter","owner":"nuxt-hub","repo":"starter","branch":"main","title":"NuxtHub Starter","description":"A minimal starter to get started with NuxtHub storage and features.","demoUrl":null,"imageUrl":"https://assets.hub.nuxt.com/eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJodHRwczovL2h1Yi1zdGFydGVyLm51eHQuZGV2IiwiaWF0IjoxNzEyMDQ5NjEyfQ.I8ooZK96hYTigKTaExQspIP7QKHtP9kCHATy_6TnaNs.jpg","published":true,"workersPaid":false,"features":["database","kv","blob","cache"],"createdAt":"2024-03-28T21:12:54.000Z"},{"id":2,"slug":"todos","owner":"atinux","repo":"nuxt-todos-edge","branch":"main","title":"Nuxt Todos","description":"A full-stack application with authentication and a database to manage your Todos.","demoUrl":"https://todos.nuxt.dev","imageUrl":"https://assets.hub.nuxt.com/eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJodHRwczovL251eHQtdG9kb3MtZWRnZS5wYWdlcy5kZXYiLCJpYXQiOjE3MTEzNjM3NjV9.T3QNfNtEiyQv6vsrwfbYx1yFlPbDq4PO41RtXXUEdMc.jpg","published":true,"workersPaid":false,"features":["database"],"createdAt":"2024-03-28T21:12:54.000Z"},{"id":3,"slug":"image-gallery","owner":"flosciante","repo":"nuxt-image-gallery","branch":"main","title":"Nuxt Image Gallery","description":"An image gallery to upload, edit and share your images to the world.","demoUrl":"https://image-gallery.nuxt.dev/","imageUrl":"https://assets.hub.nuxt.com/eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJodHRwczovL251eHQtaW1hZ2UtZ2FsbGVyeS5wYWdlcy5kZXYiLCJpYXQiOjE3MTA4NzAyMjd9.n97Cf7vLFd085tbV4Gqws0xRfNqVKKBI6NV3mfl7soE.jpg","published":true,"workersPaid":false,"features":["blob"],"createdAt":"2024-03-28T21:12:54.000Z"},{"id":4,"slug":"atinotes","owner":"atinux","repo":"atinotes","branch":"main","title":"Atinotes","description":"An editable website powered by Markdown & Vue components with dynamic OG image generation.","demoUrl":"https://notes.atinux.com","imageUrl":"https://assets.hub.nuxt.com/eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJodHRwczovL25vdGVzLmF0aW51eC5jb20iLCJpYXQiOjE3MTA4NzM5MDN9.4OB91tp5bs_s_ZQ-6ybo_CkNmzE0XOTNKR_wzvkeO_E.jpg","published":true,"workersPaid":true,"features":["kv"],"createdAt":"2024-03-28T21:12:54.000Z"}])
 
 useSeoMeta({
   title: page.value.title,
@@ -14,7 +16,7 @@ useSeoMeta({
   ogImage: joinURL(url, '/social-card.png')
 })
 
-await fetchList()
+// await fetchList()
 </script>
 
 <template>
