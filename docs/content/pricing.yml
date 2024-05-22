@@ -31,7 +31,7 @@ pricing:
       price:
         monthly: '$12'
         yearly: '$120'
-      cycle
+      cycle:
         monthly: '/user/month'
         yearly: '/user/yearly'
       highlight: true

@@ -24,7 +24,9 @@ onMounted(() => {
   <div>
     <HeroDark class="absolute hidden right-0 left-0 top-0 xl:top-16 w-full dark:block" />
     <HeroLight class="absolute right-0 left-0 top-0 xl:top-16 w-full dark:hidden" />
-
+    <ClientOnly>
+      <Globe />
+    </ClientOnly>
     <ULandingHero v-bind="page?.hero" orientation="horizontal"
       :ui="{ container: 'flex flex-row justify-start items-center' }">
       <template #headline>
