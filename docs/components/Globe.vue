@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { useEventListener } from '@vueuse/core'
 import ThreeGlobe from 'three-globe'
-import { PerspectiveCamera, DirectionalLight, AmbientLight, WebGLRenderer, Scene, Color, Fog } from 'three'
+import { PerspectiveCamera, DirectionalLight, AmbientLight, WebGLRenderer, Scene, Color, Fog, MeshBasicMaterial, TextureLoader } from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
-import { CSS2DRenderer } from 'three/addons/renderers/CSS2DRenderer.js'
 
-// maybe in the future, we could use globeImageUrl instead of hexPolygonsData for performance optimization
 import countries from './files/globe-data.json'
+import marker from './marker.svg'
 
 // the number of arcs to display on the globe
 const arcs = 13
@@ -40,7 +39,7 @@ const arcsData = [...Array(arcs).keys()].map(() => ({
 onMounted(() => init())
 
 function init() {
-  renderers = [new WebGLRenderer({ antialias: true }), new CSS2DRenderer()]
+  renderers = [new WebGLRenderer({ antialias: true })]
   renderers.forEach((r, idx) => {
     r.setSize(globeSize[0].size, globeSize[0].size)
     if (idx === 0) {
@@ -48,10 +47,7 @@ function init() {
       // set BG transparent
       r.setClearColor(0x000000, 0)
     } else {
-      // overlay additional on top of main renderer
-      r.domElement.style.position = 'absolute'
-      r.domElement.style.top = '0px'
-      r.domElement.style.pointerEvents = 'none'
+      // if there are multiple renderers, do ...
     }
     element.value.appendChild(r.domElement)
   })
@@ -114,37 +110,31 @@ function initGlobe() {
     .atmosphereColor('#3a228a')
     .atmosphereAltitude(0.25)
 
+  const data = arcsData.flatMap(arc => [
+    { lat: arc.startLat, lng: arc.startLng, },
+    { lat: arc.endLat, lng: arc.endLng, },
+  ])
+
   setTimeout(() => {
     Globe
       // arcs
       .arcsData(arcsData)
-      .arcColor(() => '#00DC82')
+      .arcColor(() => '#00DB86')
       .arcStroke(0.3)
       .arcDashLength(0.9)
       .arcDashGap(4)
       .arcDashInitialGap(() => Math.random() * 5)
       .arcDashAnimateTime(1000)
       .arcsTransitionDuration(1000)
-      // points
-      .pointsData(arcsData.flatMap(arc => [
-        { lat: arc.startLat, lng: arc.startLng, },
-        { lat: arc.endLat, lng: arc.endLng, },
-      ]))
-      .pointColor(() => '#F89D35')
-      .pointAltitude(0.001)
-      .pointRadius(1)
-      // markers for parsing html elements
-      // .htmlElementsData(arcsData.flatMap(arc => [
-      //   { lat: arc.startLat, lng: arc.startLng, isOdd: 0 },
-      //   { lat: arc.endLat, lng: arc.endLng, isOdd: 1 },
-      // ]))
-      // .htmlElement((item) => {
-      //   const el = document.createElement('div')
-      //   el.innerHTML = item.isOdd ? marker : cloudflare
-      //   el.style.color = item.isOdd ? '#00DB86' : '#f38020'
-      //   el.style.width = '20px'
-      //   return el
-      // })
+      // tile
+      .tilesData(data)
+      .tileWidth(4)
+      .tileHeight(4)
+      .tileMaterial(() => new MeshBasicMaterial({
+        map: new TextureLoader().load(marker),
+        transparent: true,
+        opacity: 1,
+      }))
   }, 100)
 
   const globeMaterial = Globe.globeMaterial()
