@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useEventListener } from '@vueuse/core'
 import ThreeGlobe from 'three-globe'
-import { PerspectiveCamera, DirectionalLight, AmbientLight, WebGLRenderer, Scene, Color, MeshBasicMaterial, TextureLoader } from 'three'
+import { PerspectiveCamera, DirectionalLight, AmbientLight, WebGLRenderer, Scene, Color, MeshBasicMaterial, TextureLoader, Mesh, SphereGeometry } from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 
 import countries from './files/globe-data.json'
@@ -18,6 +18,9 @@ let scene: Scene
 let Globe: ThreeGlobe
 let controls: OrbitControls
 let camera: PerspectiveCamera
+
+let dLight: DirectionalLight, dLight1: DirectionalLight
+
 
 const globeSize = [
   // xl
@@ -78,14 +81,9 @@ function init() {
   camera = new PerspectiveCamera()
   camera.updateProjectionMatrix()
 
-  // lights
-  const dLight = new DirectionalLight(0xFFFFFF, 0.8)
-  dLight.position.set(-800, 2000, 400)
-  camera.add(dLight)
+  // updateLights()
+  watch(() => colorMode.preference, updateLights, { immediate: true })
 
-  const dLight1 = new DirectionalLight(0x7982F6, 1)
-  dLight1.position.set(-200, 500, 200)
-  camera.add(dLight1)
 
   camera.position.z = 300
   camera.position.x = 0
@@ -106,10 +104,25 @@ function init() {
   controls.minPolarAngle = Math.PI / 3.5
   controls.maxPolarAngle = Math.PI - Math.PI / 3
 
-
   initGlobe()
   useEventListener(window, 'resize', onWindowResize)
   animate()
+}
+
+function updateLights() {
+  scene.remove(dLight, dLight1)
+
+  if (colorMode.preference === 'dark') {
+    dLight = new DirectionalLight(0xFFFFFF, 0.8)
+    dLight.position.set(-800, 2000, 400)
+
+    dLight1 = new DirectionalLight(0x7982F6, 1)
+    dLight1.position.set(-200, 500, 200)
+
+    scene.add(dLight, dLight1)
+  } else {
+    //
+  }
 }
 
 function initGlobe() {
@@ -122,7 +135,7 @@ function initGlobe() {
     .hexPolygonResolution(3)
     .hexPolygonMargin(0.7)
     .showAtmosphere(true)
-    .atmosphereColor('#3a228a')
+    // .atmosphereColor('#3a228a')
     .atmosphereAltitude(0.25)
 
   const coordinates = arcsData.flatMap(arc => [
@@ -155,18 +168,26 @@ function initGlobe() {
   const globeMaterial = Globe.globeMaterial()
 
   // change globe properties based on color mode
-  watch(colorMode, () => {
-    if (colorMode.value === 'dark') {
+  watch(() => colorMode.preference, () => {
+    if (colorMode.preference === 'dark') {
       globeMaterial.color = new Color(0x121A33)
-      Globe.hexPolygonColor(() => 'rgba(255,255,255, 0.7)')
+      Globe
+        .hexPolygonColor(() => 'rgba(255,255,255, 0.7)')
+        .atmosphereColor('#3a228a')
+
+      globeMaterial.emissive = new Color(0x220038)
+      globeMaterial.emissiveIntensity = 0.1
     } else {
       globeMaterial.color = new Color(0xffffff)
-      Globe.hexPolygonColor(() => 'rgba(0,0,0, 0.7)')
+      Globe
+        .hexPolygonColor(() => 'rgba(0,0,0, 0.7)')
+        .atmosphereColor('#E6E6E6')
+
+      globeMaterial.emissive = new Color(0xffffff)
+      globeMaterial.emissiveIntensity = 0.7
     }
   }, { immediate: true })
 
-  globeMaterial.emissive = new Color(0x220038)
-  globeMaterial.emissiveIntensity = 0.1
   globeMaterial.shininess = 0.7
 
   scene.add(Globe)
