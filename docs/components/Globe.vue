@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useEventListener } from '@vueuse/core'
 import ThreeGlobe from 'three-globe'
-import { PerspectiveCamera, DirectionalLight, AmbientLight, WebGLRenderer, Scene, Color, Fog, MeshBasicMaterial, TextureLoader } from 'three'
+import { PerspectiveCamera, DirectionalLight, AmbientLight, WebGLRenderer, Scene, Color, MeshBasicMaterial, TextureLoader } from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 
 import countries from './files/globe-data.json'
@@ -9,24 +9,41 @@ import marker from './marker.svg'
 
 // the number of arcs to display on the globe
 const arcs = 13
+
 const element = ref()
 const colorMode = useColorMode()
-let renderers, scene, camera, controls
 
+let renderers
+let scene: Scene
 let Globe: ThreeGlobe
+let controls: OrbitControls
+let camera: PerspectiveCamera
 
 const globeSize = [
+  // xl
+  {
+    breakpoint: 1280,
+    size: 900,
+  },
+  // lg
   {
     breakpoint: 1024,
-    size: 550,
+    size: 700,
   },
+  // md
   {
     breakpoint: 768,
-    size: 500,
+    size: 400,
   },
+  // sm
   {
     breakpoint: 640,
-    size: 200,
+    size: 300,
+  },
+  // xs
+  {
+    breakpoint: 0,
+    size: 250,
   },
 ]
 const arcsData = [...Array(arcs).keys()].map(() => ({
@@ -41,7 +58,7 @@ onMounted(() => init())
 function init() {
   renderers = [new WebGLRenderer({ antialias: true })]
   renderers.forEach((r, idx) => {
-    r.setSize(globeSize[0].size, globeSize[0].size)
+    // r.setSize(globeSize[0].size, globeSize[0].size)
     if (idx === 0) {
       r.setPixelRatio(window.devicePixelRatio)
       // set BG transparent
@@ -51,6 +68,7 @@ function init() {
     }
     element.value.appendChild(r.domElement)
   })
+  onWindowResize()
 
   // Setup scene
   scene = new Scene()
@@ -74,9 +92,6 @@ function init() {
   camera.position.y = 0
 
   scene.add(camera)
-
-  // Effects
-  scene.fog = new Fog(0x535EF3, 400, 2000)
 
   controls = new OrbitControls(camera, renderers[0].domElement)
   controls.enableDamping = true
@@ -110,7 +125,7 @@ function initGlobe() {
     .atmosphereColor('#3a228a')
     .atmosphereAltitude(0.25)
 
-  const data = arcsData.flatMap(arc => [
+  const coordinates = arcsData.flatMap(arc => [
     { lat: arc.startLat, lng: arc.startLng, },
     { lat: arc.endLat, lng: arc.endLng, },
   ])
@@ -126,8 +141,8 @@ function initGlobe() {
       .arcDashInitialGap(() => Math.random() * 5)
       .arcDashAnimateTime(1000)
       .arcsTransitionDuration(1000)
-      // tile
-      .tilesData(data)
+      // tile markers
+      .tilesData(coordinates)
       .tileWidth(4)
       .tileHeight(4)
       .tileMaterial(() => new MeshBasicMaterial({
@@ -135,7 +150,7 @@ function initGlobe() {
         transparent: true,
         opacity: 1,
       }))
-  }, 100)
+  }, 250)
 
   const globeMaterial = Globe.globeMaterial()
 
@@ -164,7 +179,9 @@ function initGlobe() {
 }
 
 function onWindowResize() {
-  // TODO: update globe size based on screen size
+  // update globe size based on screen size
+  const size = globeSize.find(s => window.innerWidth > s.breakpoint)?.size
+  renderers.forEach(r => r.setSize(size, size))
 }
 
 function animate() {
@@ -175,5 +192,6 @@ function animate() {
 </script>
 
 <template>
-  <div ref="element" class="absolute right-4 top-52 z-10" />
+  <!-- positioning for test to see if it works -->
+  <div ref="element" class="absolute lg:-right-96 md:-right-36 -right-20 xl:top-12 lg:top-28 md:-top-10 top-0 z-10" />
 </template>
